@@ -28,12 +28,6 @@ namespace PizzaWorld.Domain.Singleton
         {
             Stores = new List<Store>();
         }
-
-        public void GetAllStores()
-        {
-
-        }
-
         public void MakeAStore()
         {
             Stores.Add(new Store());
