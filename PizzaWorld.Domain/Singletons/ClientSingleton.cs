@@ -2,12 +2,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml.Serialization;
 using PizzaWorld.Domain.Models;
+using System;
+using System.Linq;
 
 namespace PizzaWorld.Domain.Singleton
 {
     public class ClientSingleton
     {
         private static ClientSingleton _instance;
+        private const string path = @"pizzaworld.xml";
 
         public static ClientSingleton Instance
         {
@@ -24,10 +27,11 @@ namespace PizzaWorld.Domain.Singleton
 
         public List<Store> Stores { get; set; }
 
-        private ClientSingleton()
+        public ClientSingleton()
         {
-            Stores = new List<Store>();
+            Read();
         }
+
         public void MakeAStore()
         {
             Stores.Add(new Store());
@@ -36,12 +40,40 @@ namespace PizzaWorld.Domain.Singleton
 
         private void Save()
         {
-            string path = @"pizzaworld.xml";
             var file = new StreamWriter(path);
             var xml = new XmlSerializer(typeof(List<Store>));
             
             xml.Serialize(file,Stores);
         }
 
+        public void Read()
+        {
+            if (File.Exists(path))
+            {
+                var file = new StreamReader(path);
+                var xml = new XmlSerializer(typeof(List<Store>));
+
+                Stores = xml.Deserialize(file) as List<Store>;
+
+            }
+            else
+            {
+                Stores = new List<Store>();
+            }
+        }
+
+        public void DisplayStores()
+        {
+            foreach(Store store in Stores)
+            {
+                Console.WriteLine(store.ToString());
+            }
+        }
+    
+        public Store SelectStore()
+        {
+            int.TryParse(Console.ReadLine(),out int input);
+            return Stores.ElementAtOrDefault(input);
+        }
     }
 }

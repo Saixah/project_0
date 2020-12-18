@@ -7,12 +7,12 @@ namespace PizzaWorld.Client
 {
     class Program
     {
+        private static readonly ClientSingleton _client 
+                            = ClientSingleton.Instance;
         static void Main(string[] args)
-        {
-           var cs = ClientSingleton.Instance;
-           // Greeting();
+        {   
+           UserView();
         }
-
         static void Greeting()
         {
             
@@ -45,7 +45,7 @@ namespace PizzaWorld.Client
                     }
                 }
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 Console.WriteLine("Please Enter a Number \n");
                 Greeting();
@@ -58,25 +58,17 @@ namespace PizzaWorld.Client
             Console.Write("Enter 2 to create a new account \n");
         }
 
-        static User CreateUser(string name)
+        static void UserView()
         {
-            return new User(name);
-        }
+            User user = new User();
+            
+            _client.DisplayStores();
 
-        static List<Store> GetAllStores()
-        {
-            return new List<Store>()
-            {
-                new Store()
-            };
-        }
+            user.ChosenStore = _client.SelectStore();
+            user.ChosenStore.CreateOrder();
+            user.Orders = user.ChosenStore.Orders;
 
-        static void PrintAllStores()
-        {
-            foreach(var store in GetAllStores())
-            {
-                Console.WriteLine(store);
-            }
+            Console.WriteLine(user);
         }
     }
 }

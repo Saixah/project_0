@@ -10,7 +10,7 @@ namespace PizzaaWorld.Testing
         private void Test_UserExists()
         {
             // arrange
-            var sut = new User("Isaiah");
+            var sut = new User();
             // act
 
             // assert

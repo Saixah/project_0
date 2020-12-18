@@ -1,12 +1,15 @@
+using System.Collections.Generic;
+
 namespace PizzaWorld.Domain.Models
 {
     public class User
     {
-        string Name;
-        
-        public User(string Name)
+        public Store ChosenStore { get; set; }
+        public List<Order> Orders { get; set; }
+
+        public override string ToString()
         {
-            Name = this.Name;
+            return $"I have selected this store : {ChosenStore}";
         }
-    }
+    }  
 }
