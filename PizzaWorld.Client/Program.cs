@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using PizzaWorld.Domain.Singleton;
 using PizzaWorld.Domain.Models;
+using System.Linq;
 
 namespace PizzaWorld.Client
 {
     class Program
     {
-        private static readonly ClientSingleton _client 
+        private static readonly ClientSingleton Client 
                             = ClientSingleton.Instance;
         static void Main(string[] args)
         {   
@@ -61,13 +62,62 @@ namespace PizzaWorld.Client
         static void UserView()
         {
             User user = new User();
-            
-            _client.DisplayStores();
 
-            user.ChosenStore = _client.SelectStore();
+            Client.DisplayStores();
+
+            user.ChosenStore = Client.SelectStore();
             user.ChosenStore.CreateOrder();
-            user.Orders = user.ChosenStore.Orders;
+            user.Orders.Add(user.ChosenStore.Orders.Last());
 
+            // HARDCODED--make into dynamic, allow store to change
+            var Pizzas = new List<string>(){ "Cheese","Meat","Custom" };
+
+            // HARDCODED--make into dynamic, allow user {Customer} to change
+            // todo make different toppings list, one for store to give options,
+            // one for User to pick out of
+            var Toppings = new List<string>() { "Pineapple","Jalepeno","Chicken" };
+            
+            var StillSelecting = true;
+            var TopOrder = user.Orders.Last();
+
+            //todo Break into modular - put in own method
+            while (StillSelecting)
+            {
+                Console.WriteLine("Select a Pizza? Y or N");
+                string UserChoice = Console.ReadLine();
+
+                if (UserChoice.Equals("Y"))
+                {
+                    Pizzas.ForEach(Console.WriteLine);
+                    int.TryParse(Console.ReadLine(),out int input);
+
+                    //Possible Switch to Delegates / put in own method
+                    switch(input)
+                    {
+                        case 1:
+                            TopOrder.MakeCheesePizza();
+                            break;
+                        case 2: 
+                            TopOrder.MakeMeatPizza();
+                            break;
+                        case 3:
+                            //todo get pizza params from user
+                            TopOrder.MakeCustomPizza("Thick", "Large", Toppings);
+                            break;
+                        default:
+                            Console.WriteLine("Please enter a valid choice");
+                            break;
+                    }
+                }
+                else if (UserChoice.Equals("N"))
+                {
+                    StillSelecting = false;
+                }
+                else
+                {
+                    Console.WriteLine("Please Enter Y or N");
+                }
+            }
             Console.WriteLine(user);
         }
     }
