@@ -9,10 +9,5 @@ namespace PizzaWorld.Domain.Factories
     {
       return new T();
     }
-
-    public T Make<T>(string Size, string Crust, List<string> Toppings) where T : APizzaModel, new()
-    {
-      return new T();
-    }
   }
 }

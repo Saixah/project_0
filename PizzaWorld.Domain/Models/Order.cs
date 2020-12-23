@@ -4,7 +4,7 @@ using PizzaWorld.Domain.Factories;
 
 namespace PizzaWorld.Domain.Models
 {
-   public class Order
+   public class Order : AEntity
   {
     private GenericPizzaFactory _pizzaFactory = new GenericPizzaFactory();
 
@@ -25,9 +25,9 @@ namespace PizzaWorld.Domain.Models
       Pizzas.Add(_pizzaFactory.Make<CheesePizza>());
     }
 
-    public void MakeCustomPizza(string Crust, string Size, List<string> Toppings)
+    public void MakeCustomPizza(Crust Crust, Size Size, List<Topping> Toppings)
     {
-      Pizzas.Add(_pizzaFactory.Make<CustomPizza>(Crust, Size, Toppings));
+      Pizzas.Add(new CustomPizza(Crust, Size, Toppings));
     }
   }
 }

@@ -102,7 +102,7 @@ namespace PizzaWorld.Client
                             break;
                         case 3:
                             //todo get pizza params from user
-                            TopOrder.MakeCustomPizza("Thick", "Large", Toppings);
+                            TopOrder.MakeCustomPizza(new Crust("Thick"), new Size("Large"), new List<Topping>());
                             break;
                         default:
                             Console.WriteLine("Please enter a valid choice");

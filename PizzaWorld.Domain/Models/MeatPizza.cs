@@ -7,22 +7,21 @@ namespace PizzaWorld.Domain.Models
   {
     protected override void AddCrust()
     {
-      Crust = "regular";
+      Crust = new Crust("MOVetTHisTEstTOTesting");
     }
 
     protected override void AddSize()
     {
-      Size = "small";
+      Size = new Size("Large");
     }
 
     protected override void AddToppings()
     {
-      Toppings = new List<string>
+      Toppings = new List<Topping>
       {
-        "cheese",
-        "meat",
-        "bacon",
-        "tomato"
+       new Topping("test"),
+       new Topping("test1"),
+       new Topping("test2")
       };
     }
   }

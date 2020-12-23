@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using PizzaWorld.Domain.Models;
 
 namespace PizzaWorld.Domain.Abstracts
 {
-    public abstract class APizzaModel
+    public class APizzaModel : AEntity
     {
-        public string Crust {get; set;}
-        public string Size {get; set;}
-        public List<string> Toppings {get; set;}
+        public Crust Crust {get; set;}
+        public Size Size {get; set;}
+        public List<Topping> Toppings {get; set;}
 
         protected APizzaModel()
         {
@@ -14,18 +15,9 @@ namespace PizzaWorld.Domain.Abstracts
             AddSize();
             AddToppings();
         }
-        protected APizzaModel(string Crust, string Size, List<string> Toppings)
-        {
-            AddCrust(Crust);
-            AddSize(Size);
-            AddToppings(Toppings);
-        }
 
         protected virtual void AddCrust(){}
-        protected virtual void AddCrust(string CrustInput){}
         protected virtual void AddSize(){}
-        protected virtual void AddSize(string SizeInput){}
         protected virtual void AddToppings(){}
-        protected virtual void AddToppings(List<string> ToppingInput){}
     }
 }
