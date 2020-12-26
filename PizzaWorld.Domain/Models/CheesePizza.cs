@@ -8,24 +8,16 @@ namespace PizzaWorld.Domain.Models
     protected override void AddCrust()
     {
       Crust = new Crust();
-      Crust.price = 2;
-      Crust.name = "Thick";
     }
 
     protected override void AddSize()
     {
       Size = new Size();
-      Size.price = 2;
-      Size.name = "Large";
     }
 
     protected override void AddToppings()
     {
-      Toppings = new List<Topping>
-      {
-        new Topping("Killme"),
-        new Topping("Cheese")
-      };
+      Toppings = new List<Topping>();
     }
   }
 }

@@ -7,12 +7,12 @@ namespace PizzaWorld.Domain.Models
 {
     public class User : AEntity
     {
+        public Store ChosenStore { get; set; }
+        public List<Order> Orders { get; set; }
         public User()
         {
             Orders = new List<Order>();
         }
-        public Store ChosenStore { get; set; }
-        public List<Order> Orders { get; set; }
 
         public override string ToString()
         {

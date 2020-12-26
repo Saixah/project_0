@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using PizzaWorld.Domain.Singleton;
 using PizzaWorld.Domain.Models;
 using System.Linq;
+using PizzaWorld.Domain.Abstracts;
+using PizzaWorld.Client.Repo;
 
 namespace PizzaWorld.Client
 {
@@ -10,13 +12,18 @@ namespace PizzaWorld.Client
     {
         private static readonly ClientSingleton Client 
                             = ClientSingleton.Instance;
+
+        public static CrustRepo CrustRepo = new CrustRepo();
+        public static StoreRepo StoreRepo = new StoreRepo();
+        public static ToppingRepo ToppingRepo = new ToppingRepo();
+        public static SizeRepo SizeRepo = new SizeRepo();
         static void Main(string[] args)
         {   
+            //SqlClient.DisplayToppings();
            UserView();
         }
         static void Greeting()
         {
-            
             Console.WriteLine("Welcome to PizzaPalace");
             Console.Write("Enter 1 if you are an Customer | ");
             Console.Write("Enter 2 if you are an Employee \n");
@@ -61,26 +68,37 @@ namespace PizzaWorld.Client
 
         static void UserView()
         {
+            //Create User
             User user = new User();
+            //Display Store Choices
+            storeRepo.DisplayStores();
+            //User Makes Choice
+            int.TryParse(Console.ReadLine(),out int storeInput);
+            user.ChosenStore = storeRepo.ReadOneStore(storeInput);
 
-            Client.DisplayStores();
-
-            user.ChosenStore = Client.SelectStore();
+            //Create Order
             user.ChosenStore.CreateOrder();
             user.Orders.Add(user.ChosenStore.Orders.Last());
 
-            // HARDCODED--make into dynamic, allow store to change
-            var Pizzas = new List<string>(){ "Cheese","Meat","Custom" };
+            // Display Pizzas from Chosen Stor
+            // Having trouble adding Select Pizzas to DB 
+            // var Pizzas = SqlClient.GetPizzasFromStore(UserInput);
+            var Pizzas = new List<string>
+            {
+                "CheesePizza","MeatPizza","CustomPizza"
+            };
 
-            // HARDCODED--make into dynamic, allow user {Customer} to change
-            // todo make different toppings list, one for store to give options,
-            // one for User to pick out of
-            var Toppings = new List<string>() { "Pineapple","Jalepeno","Chicken" };
-            
+            //--Assumtion that all stores offer same toppings, sizes, and crusts
+            var Toppings = SqlClient.ReadToppings();
+            var Crusts = SqlClient.ReadCrust();
+            var Size = SqlClient.ReadSize();
+
+            //Handles Order
             var StillSelecting = true;
             var TopOrder = user.Orders.Last();
 
             //todo Break into modular - put in own method
+            //When able to read pizzas from stores, this will need to change
             while (StillSelecting)
             {
                 Console.WriteLine("Select a Pizza? Y or N");
@@ -88,7 +106,14 @@ namespace PizzaWorld.Client
 
                 if (UserChoice.Equals("Y"))
                 {
-                    Pizzas.ForEach(Console.WriteLine);
+                    if (Pizzas == null)
+                    {
+                        Console.WriteLine("This store offers no pizzas");
+                    }
+                    else
+                    {
+                        Pizzas.ForEach(Console.WriteLine);
+                    }
                     int.TryParse(Console.ReadLine(),out int input);
 
                     //Possible Switch to Delegates / put in own method
@@ -102,8 +127,43 @@ namespace PizzaWorld.Client
                             break;
                         case 3:
                             //todo get pizza params from user
-                            TopOrder.MakeCustomPizza(new Crust("Thick"), new Size("Large"), new List<Topping>());
+                            Console.WriteLine("Choose a Size");
+                            SqlClient.DisplaySize();
+                            var UserSize = SqlClient.ReadOneSize(Console.ReadLine());
+
+                            Console.WriteLine("Choose a Crust");
+                            SqlClient.DisplayCrust();
+                            var UserCrust = SqlClient.ReadOneCrust(Console.ReadLine());
+
+                            Boolean IsStillGettingToppings = true;
+                            var UserToppings = new List<Topping>();
+                            
+                            while(IsStillGettingToppings)
+                            {
+                                Console.WriteLine("Choose a Topping, Minimum 2");
+                                Console.WriteLine("Total Toppings: " + UserToppings.Count+"\n");
+                                SqlClient.DisplayToppings(); 
+                                
+                                UserToppings.Add(SqlClient.ReadOneTopping(Console.ReadLine()));
+
+                                if(UserToppings.Count >= 2)
+                                {
+                                    Console.WriteLine("You've hit the minimum, would you like to add more?");
+                                    Console.WriteLine("Y or N");
+                                    if (Console.ReadLine().Equals("N"))
+                                    {
+                                        IsStillGettingToppings = false;
+                                    }
+                                }
+                                else if (UserToppings.Count == 50)
+                                {
+                                    Console.WriteLine("You've hit the maximum");
+                                    IsStillGettingToppings = false;
+                                }
+                            }
+                            TopOrder.MakeCustomPizza(UserCrust, UserSize, UserToppings);
                             break;
+
                         default:
                             Console.WriteLine("Please enter a valid choice");
                             break;

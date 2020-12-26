@@ -5,6 +5,7 @@ namespace PizzaWorld.Domain.Models
 {
   public class CustomPizza : APizzaModel
   {
+      public CustomPizza(){}
       public CustomPizza(Crust Crust, Size Size, List<Topping> Toppings)
         {
             this.Crust = Crust;

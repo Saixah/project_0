@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PizzaWorld.Storage;
 
 namespace PizzaWorld.Storage.Migrations
 {
     [DbContext(typeof(PizzaWorldContext))]
-    partial class PizzaWorldContextModelSnapshot : ModelSnapshot
+    [Migration("20201226202354_betterIngredients")]
+    partial class betterIngredients
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,19 +73,19 @@ namespace PizzaWorld.Storage.Migrations
                     b.HasData(
                         new
                         {
-                            EntityId = 637446018589755482L,
+                            EntityId = 637445894333545659L,
                             name = "Thin",
                             price = 2m
                         },
                         new
                         {
-                            EntityId = 637446018589757361L,
+                            EntityId = 637445894333547564L,
                             name = "Thick",
                             price = 3m
                         },
                         new
                         {
-                            EntityId = 637446018589757390L,
+                            EntityId = 637445894333547596L,
                             name = "Stuffed",
                             price = 5m
                         });
@@ -131,25 +133,25 @@ namespace PizzaWorld.Storage.Migrations
                     b.HasData(
                         new
                         {
-                            EntityId = 637446018589749901L,
+                            EntityId = 637445894333533684L,
                             name = "Small",
                             price = 12m
                         },
                         new
                         {
-                            EntityId = 637446018589752587L,
+                            EntityId = 637445894333535166L,
                             name = "Medium",
                             price = 16m
                         },
                         new
                         {
-                            EntityId = 637446018589752625L,
+                            EntityId = 637445894333535181L,
                             name = "Large",
                             price = 22m
                         },
                         new
                         {
-                            EntityId = 637446018589752634L,
+                            EntityId = 637445894333535184L,
                             name = "X-Large",
                             price = 28m
                         });
@@ -172,18 +174,13 @@ namespace PizzaWorld.Storage.Migrations
                     b.HasData(
                         new
                         {
-                            EntityId = 637446018589630847L,
+                            EntityId = 637445894333468394L,
                             Name = "One"
                         },
                         new
                         {
-                            EntityId = 637446018589714609L,
+                            EntityId = 637445894333513837L,
                             Name = "Two"
-                        },
-                        new
-                        {
-                            EntityId = 637446018589714695L,
-                            Name = "Three"
                         });
                 });
 
@@ -212,37 +209,37 @@ namespace PizzaWorld.Storage.Migrations
                     b.HasData(
                         new
                         {
-                            EntityId = 637446018589741957L,
+                            EntityId = 637445894333530904L,
                             name = "Pepperoni",
                             price = 2m
                         },
                         new
                         {
-                            EntityId = 637446018589745999L,
+                            EntityId = 637445894333532193L,
                             name = "Pineapple",
                             price = 6m
                         },
                         new
                         {
-                            EntityId = 637446018589746051L,
+                            EntityId = 637445894333532209L,
                             name = "Bacon",
                             price = 3m
                         },
                         new
                         {
-                            EntityId = 637446018589746060L,
+                            EntityId = 637445894333532213L,
                             name = "Gold",
                             price = 100m
                         },
                         new
                         {
-                            EntityId = 637446018589746067L,
+                            EntityId = 637445894333532216L,
                             name = "Jalapenos",
                             price = 60m
                         },
                         new
                         {
-                            EntityId = 637446018589746102L,
+                            EntityId = 637445894333532233L,
                             name = "Cheese",
                             price = 1m
                         });
