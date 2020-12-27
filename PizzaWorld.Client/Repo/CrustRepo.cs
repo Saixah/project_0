@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using PizzaWorld.Domain.Abstracts;
 using PizzaWorld.Domain.Models;
-using PizzaWorld.Storage;
 
 namespace PizzaWorld.Client.Repo
 {
@@ -21,6 +19,11 @@ namespace PizzaWorld.Client.Repo
         public Crust ReadOneCrust(string Name)
         {
             return _db.Crust.FirstOrDefault(s => s.name.Equals(Name));
+        }
+
+        public Crust ReadOneCrust(int UserInput)
+        {
+            return _db.Crust.ToList().ElementAt(UserInput - 1);
         }
     }
 }

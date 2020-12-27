@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using PizzaWorld.Domain.Abstracts;
 using PizzaWorld.Domain.Models;
-using PizzaWorld.Storage;
 
 namespace PizzaWorld.Client.Repo
 {
@@ -28,7 +27,7 @@ namespace PizzaWorld.Client.Repo
 
         public Store ReadOneStore(int UserInt)
         {
-            return _db.Stores.ToList().ElementAt(UserInt);
+            return _db.Stores.ToList().ElementAt(UserInt - 1);
         }
 
         public void AddPizzaToStore(string StoreName)

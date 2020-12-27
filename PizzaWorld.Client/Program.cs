@@ -16,57 +16,27 @@ namespace PizzaWorld.Client
         public static ToppingRepo ToppingRepo = new ToppingRepo();
         public static SizeRepo SizeRepo = new SizeRepo();
         public static CrustRepo CrustRepo = new CrustRepo();
+        public static OrderRepo OrderRepo = new OrderRepo();
 
         static void Main(string[] args)
         {   
-            //SqlClient.DisplayToppings();
            UserView();
         }
-        static void Greeting()
-        {
-            Console.WriteLine("Welcome to PizzaPalace");
-            Console.Write("Enter 1 if you are an Customer | ");
-            Console.Write("Enter 2 if you are an Employee \n");
-            CheckUserType();
-        }
-
-        static void CheckUserType()
-        {
-            try
-            {
-                string UserEntry = Console.ReadLine();
-                if (UserEntry != null)
-                {
-                    int UserResult = Int32.Parse(UserEntry);
-                    switch(UserResult)
-                    {
-                        case 1:
-                            Console.WriteLine("Welcome Customer!");
-                            break;
-                        case 2:
-                            Console.WriteLine("Welcome Employee!");
-                            break;
-                        default:
-                            Console.WriteLine("Please Enter a valid entry \n");
-                            Greeting();
-                            break;
-                    }
-                }
-            }
-            catch(Exception)
-            {
-                Console.WriteLine("Please Enter a Number \n");
-                Greeting();
-            }
-        }
-
-        static void CustomerCheckIn()
-        {
-            Console.Write("Enter 1 if you already have an account | ");
-            Console.Write("Enter 2 to create a new account \n");
-        }
-
         static void UserView()
+        {
+            //Get User
+            var User = UserStart();
+            //Get Order
+            GetSelection(User);
+            //Print Pizza Order
+            Console.WriteLine(User);
+            //Print Total
+            Console.WriteLine("Your total is : " + GetPrice(User));
+
+            OrderRepo.SaveOrder(User);
+        }
+
+        static User UserStart()
         {
             //Create User
             User user = new User();
@@ -80,24 +50,65 @@ namespace PizzaWorld.Client
             user.ChosenStore.CreateOrder();
             user.Orders.Add(user.ChosenStore.Orders.Last());
 
-            // Display Pizzas from Chosen Stor
-            // Having trouble adding Select Pizzas to DB 
-            // var Pizzas = SqlClient.GetPizzasFromStore(UserInput);
-            var Pizzas = new List<string>
-            {
-                "CheesePizza","MeatPizza","CustomPizza"
-            };
+            return user;
+        }
 
-            //--Assumtion that all stores offer same toppings, sizes, and crusts
-            var Toppings = ToppingRepo.ReadToppings();
-            // var Crusts = CrustRepo.ReadCrust();
-            var Size = SizeRepo.ReadSize();
+        static Size GetSize()
+        {
+            Console.WriteLine("Choose a Size");
+            SizeRepo.DisplaySize();
+            int.TryParse(Console.ReadLine(),out int SizeInput);
+            return SizeRepo.ReadOneSize(SizeInput);
+        }
+
+        static Crust GetCrust()
+        {
+            Console.WriteLine("Choose a Crust");
+            CrustRepo.DisplayCrust();
+            int.TryParse(Console.ReadLine(),out int CrustInput);
+            return CrustRepo.ReadOneCrust(CrustInput);
+        }
+
+        static List<Topping> GetToppings()
+        {
+            Boolean IsStillGettingToppings = true;
+            var UserToppings = new List<Topping>();
+            
+            while(IsStillGettingToppings)
+            {
+                Console.WriteLine("Choose a Topping, Minimum 2");
+                Console.WriteLine("Total Toppings: " + UserToppings.Count+"\n");
+                ToppingRepo.DisplayToppings(); 
+                
+                int.TryParse(Console.ReadLine(),out int ToppingInput);
+                UserToppings.Add(ToppingRepo.ReadOneTopping(ToppingInput));
+
+                if(UserToppings.Count >= 2)
+                {
+                    Console.WriteLine("You've hit the minimum, would you like to add more?");
+                    Console.WriteLine("Y or N");
+                    if (Console.ReadLine().Equals("N"))
+                    {
+                        IsStillGettingToppings = false;
+                    }
+                }
+                else if (UserToppings.Count == 50)
+                {
+                    Console.WriteLine("You've hit the maximum");
+                    IsStillGettingToppings = false;
+                }
+            }
+            return UserToppings;
+        }
+
+        static void GetSelection(User User)
+        {
+            var Pizzas = new List<string>{"CheesePizza","MeatPizza","CustomPizza"};
 
             //Handles Order
-            var StillSelecting = true;
-            var TopOrder = user.Orders.Last();
+            var StillSelecting= true;
+            var TopOrder = User.Orders.Last();
 
-            //todo Break into modular - put in own method
             //When able to read pizzas from stores, this will need to change
             while (StillSelecting)
             {
@@ -106,17 +117,8 @@ namespace PizzaWorld.Client
 
                 if (UserChoice.Equals("Y"))
                 {
-                    if (Pizzas == null)
-                    {
-                        Console.WriteLine("This store offers no pizzas");
-                    }
-                    else
-                    {
-                        Pizzas.ForEach(Console.WriteLine);
-                    }
+                    Pizzas.ForEach(Console.WriteLine);
                     int.TryParse(Console.ReadLine(),out int input);
-
-                    //Possible Switch to Delegates / put in own method
                     switch(input)
                     {
                         case 1:
@@ -126,59 +128,31 @@ namespace PizzaWorld.Client
                             TopOrder.MakeMeatPizza();
                             break;
                         case 3:
-                            //todo get pizza params from user
-                            Console.WriteLine("Choose a Size");
-                            SizeRepo.DisplaySize();
-                            var UserSize = SizeRepo.ReadOneSize(Console.ReadLine());
-
-                            Console.WriteLine("Choose a Crust");
-                            CrustRepo.DisplayCrust();
-                            var UserCrust = CrustRepo.ReadOneCrust(Console.ReadLine());
-
-                            Boolean IsStillGettingToppings = true;
-                            var UserToppings = new List<Topping>();
-                            
-                            while(IsStillGettingToppings)
-                            {
-                                Console.WriteLine("Choose a Topping, Minimum 2");
-                                Console.WriteLine("Total Toppings: " + UserToppings.Count+"\n");
-                                ToppingRepo.DisplayToppings(); 
-                                
-                                UserToppings.Add(ToppingRepo.ReadOneTopping(Console.ReadLine()));
-
-                                if(UserToppings.Count >= 2)
-                                {
-                                    Console.WriteLine("You've hit the minimum, would you like to add more?");
-                                    Console.WriteLine("Y or N");
-                                    if (Console.ReadLine().Equals("N"))
-                                    {
-                                        IsStillGettingToppings = false;
-                                    }
-                                }
-                                else if (UserToppings.Count == 50)
-                                {
-                                    Console.WriteLine("You've hit the maximum");
-                                    IsStillGettingToppings = false;
-                                }
-                            }
-                            // TopOrder.MakeCustomPizza(UserCrust, UserSize, UserToppings);
+                            TopOrder.MakeCustomPizza(GetCrust(), GetSize(),GetToppings());
                             break;
-
                         default:
                             Console.WriteLine("Please enter a valid choice");
                             break;
                     }
                 }
-                else if (UserChoice.Equals("N"))
+                else if (UserChoice.Equals("N")){StillSelecting = false;}
+                else{Console.WriteLine("Please Enter Y or N");}
+            }
+        }
+
+        static decimal GetPrice(User User)
+        {
+            decimal total=0;
+            foreach (APizzaModel pizza in User.Orders.Last().Pizzas)
+            {
+                total += pizza.Crust.price;
+                total += pizza.Size.price;
+                foreach(Topping topping in pizza.Toppings)
                 {
-                    StillSelecting = false;
-                }
-                else
-                {
-                    Console.WriteLine("Please Enter Y or N");
+                    total+=topping.price;
                 }
             }
-            Console.WriteLine(user);
+            return total;
         }
     }
 }

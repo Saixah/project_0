@@ -8,9 +8,6 @@ namespace PizzaWorld.Storage
     public class PizzaWorldContext : DbContext
     {
         public DbSet<Store> Stores { get; set; }
-
-        //Gave Seperate in order to create Custom Pizza, proooobably not the best
-        //forseable troubles
         public DbSet<Topping> Topping {get; set;}
         public DbSet<Crust> Crust {get; set;}
         public DbSet<Size> Size {get; set;}
@@ -59,27 +56,27 @@ namespace PizzaWorld.Storage
 
             builder.Entity<Topping>().HasData(new List<Topping>
             {
-               new Topping(){name = "Pepperoni", price = 2},
-               new Topping(){name = "Pineapple", price = 6},
-               new Topping(){name = "Bacon", price = 3},
-               new Topping(){name = "Gold", price = 100},
-               new Topping(){name = "Jalapenos", price = 60},
-               new Topping(){name = "Cheese", price = 1}
+               new Topping("Pepperoni", 2),
+               new Topping("Pineapple", 6),
+               new Topping("Bacon", 3),
+               new Topping("Gold", 100),
+               new Topping("Jalapenos", 60),
+               new Topping("Cheese", 1)
             });
 
             builder.Entity<Size>().HasData(new List<Size>
             {
-                new Size(){name = "Small", price = 12},
-                new Size(){name = "Medium", price = 16},
-                new Size(){name = "Large", price = 22},
-                new Size(){name = "X-Large", price = 28}
+                new Size("Small", 12),
+                new Size("Medium",16),
+                new Size("Large", 22),
+                new Size("X-Large", 28)
             });
 
             builder.Entity<Crust>().HasData(new List<Crust>
             {
-                new Crust(){name = "Thin", price = 2},
-                new Crust(){name = "Thick", price = 3},
-                new Crust(){name = "Stuffed", price = 5}
+                new Crust("Thin", 2),
+                new Crust("Thick", 3),
+                new Crust("Stuffed",5)
             });
         }
 
