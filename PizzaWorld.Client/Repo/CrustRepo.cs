@@ -6,7 +6,7 @@ using PizzaWorld.Storage;
 
 namespace PizzaWorld.Client.Repo
 {
-    public class Crust : SqlClient
+    public class CrustRepo : SqlClient
     {
         public IEnumerable<Crust> ReadCrust()
         {

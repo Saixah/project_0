@@ -10,13 +10,13 @@ namespace PizzaWorld.Client
 {
     class Program
     {
-        private static readonly ClientSingleton Client 
-                            = ClientSingleton.Instance;
-
-        public static CrustRepo CrustRepo = new CrustRepo();
+        private static readonly ClientSingleton Client =
+         ClientSingleton.Instance;
         public static StoreRepo StoreRepo = new StoreRepo();
         public static ToppingRepo ToppingRepo = new ToppingRepo();
         public static SizeRepo SizeRepo = new SizeRepo();
+        public static CrustRepo CrustRepo = new CrustRepo();
+
         static void Main(string[] args)
         {   
             //SqlClient.DisplayToppings();
@@ -71,10 +71,10 @@ namespace PizzaWorld.Client
             //Create User
             User user = new User();
             //Display Store Choices
-            storeRepo.DisplayStores();
+            StoreRepo.DisplayStores();
             //User Makes Choice
             int.TryParse(Console.ReadLine(),out int storeInput);
-            user.ChosenStore = storeRepo.ReadOneStore(storeInput);
+            user.ChosenStore = StoreRepo.ReadOneStore(storeInput);
 
             //Create Order
             user.ChosenStore.CreateOrder();
@@ -89,9 +89,9 @@ namespace PizzaWorld.Client
             };
 
             //--Assumtion that all stores offer same toppings, sizes, and crusts
-            var Toppings = SqlClient.ReadToppings();
-            var Crusts = SqlClient.ReadCrust();
-            var Size = SqlClient.ReadSize();
+            var Toppings = ToppingRepo.ReadToppings();
+            // var Crusts = CrustRepo.ReadCrust();
+            var Size = SizeRepo.ReadSize();
 
             //Handles Order
             var StillSelecting = true;
@@ -128,12 +128,12 @@ namespace PizzaWorld.Client
                         case 3:
                             //todo get pizza params from user
                             Console.WriteLine("Choose a Size");
-                            SqlClient.DisplaySize();
-                            var UserSize = SqlClient.ReadOneSize(Console.ReadLine());
+                            SizeRepo.DisplaySize();
+                            var UserSize = SizeRepo.ReadOneSize(Console.ReadLine());
 
                             Console.WriteLine("Choose a Crust");
-                            SqlClient.DisplayCrust();
-                            var UserCrust = SqlClient.ReadOneCrust(Console.ReadLine());
+                            CrustRepo.DisplayCrust();
+                            var UserCrust = CrustRepo.ReadOneCrust(Console.ReadLine());
 
                             Boolean IsStillGettingToppings = true;
                             var UserToppings = new List<Topping>();
@@ -142,9 +142,9 @@ namespace PizzaWorld.Client
                             {
                                 Console.WriteLine("Choose a Topping, Minimum 2");
                                 Console.WriteLine("Total Toppings: " + UserToppings.Count+"\n");
-                                SqlClient.DisplayToppings(); 
+                                ToppingRepo.DisplayToppings(); 
                                 
-                                UserToppings.Add(SqlClient.ReadOneTopping(Console.ReadLine()));
+                                UserToppings.Add(ToppingRepo.ReadOneTopping(Console.ReadLine()));
 
                                 if(UserToppings.Count >= 2)
                                 {
@@ -161,7 +161,7 @@ namespace PizzaWorld.Client
                                     IsStillGettingToppings = false;
                                 }
                             }
-                            TopOrder.MakeCustomPizza(UserCrust, UserSize, UserToppings);
+                            // TopOrder.MakeCustomPizza(UserCrust, UserSize, UserToppings);
                             break;
 
                         default:
