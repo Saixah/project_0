@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using PizzaWorld.Storage;
 
-namespace PizzaWorld.Client.Repo
+namespace PizzaWorld.Repo.Repos
 {
     public abstract class SqlClient
     {

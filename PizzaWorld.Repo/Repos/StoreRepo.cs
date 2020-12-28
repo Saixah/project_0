@@ -4,7 +4,7 @@ using System.Linq;
 using PizzaWorld.Domain.Abstracts;
 using PizzaWorld.Domain.Models;
 
-namespace PizzaWorld.Client.Repo
+namespace PizzaWorld.Repo.Repos
 {
     public class StoreRepo : SqlClient
     {

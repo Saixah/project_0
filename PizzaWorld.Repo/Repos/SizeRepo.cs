@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using PizzaWorld.Domain.Models;
 
-namespace PizzaWorld.Client.Repo
+namespace PizzaWorld.Repo.Repos
 {
     public class SizeRepo : SqlClient
     {

@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PizzaWorld.Domain\PizzaWorld.Domain.csproj" />
-    <ProjectReference Include="..\PizzaWorld.Storage\PizzaWorld.Storage.csproj" />
+    <ProjectReference Include="..\PizzaWorld.Repo\PizzaWorld.Repo.csproj" />
   </ItemGroup>
 
   <ItemGroup>

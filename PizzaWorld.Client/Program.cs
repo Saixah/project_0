@@ -4,7 +4,7 @@ using PizzaWorld.Domain.Singleton;
 using PizzaWorld.Domain.Models;
 using System.Linq;
 using PizzaWorld.Domain.Abstracts;
-using PizzaWorld.Client.Repo;
+using PizzaWorld.Repo.Repos;
 
 namespace PizzaWorld.Client
 {
