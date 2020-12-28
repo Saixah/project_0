@@ -11,6 +11,7 @@ namespace PizzaWorld.Domain.Models
         public Store()
         {
             Orders = new List<Order>();
+            Pizzas = new List<APizzaModel>();
         }
         public Store(string name, List<Order> orders, List<APizzaModel> pizzaModels)
         {

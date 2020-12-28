@@ -15,7 +15,7 @@ namespace PizzaWorld.Storage
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            builder.UseSqlServer("Server=isaiahpizzaworld.database.windows.net;Initial Catalog=isaiahpizzaworlddb;User ID=sqladmin;Password=Oblivion1234;");
+            builder.UseSqlServer("Server=isaiahpizzaworld.database.windows.net;Initial Catalog=isaiahpizzaworlddb;User ID=sqladmin;Password=;");
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -47,36 +47,37 @@ namespace PizzaWorld.Storage
             
             builder.Entity<Store>(b => 
             {
-                b.HasData(new List<Store>{
-                    new Store() {Name = "One"},
-                    new Store() {Name = "Two"},
-                    new Store() {Name = "Three"}
-                });
+                // b.HasData(new List<Store>{
+                //     new Store() {Name = "One"},
+                //     new Store() {Name = "Two"},
+                //     new Store() {Name = "Three"}
+                // });
+                
             });    
 
             builder.Entity<Topping>().HasData(new List<Topping>
             {
-               new Topping("Pepperoni", 2),
-               new Topping("Pineapple", 6),
-               new Topping("Bacon", 3),
-               new Topping("Gold", 100),
-               new Topping("Jalapenos", 60),
-               new Topping("Cheese", 1)
+               new Topping(){name ="Pepperoni", price = 2},
+               new Topping(){name ="Pineapple",price = 6},
+               new Topping(){name ="Bacon",price = 3},
+               new Topping(){name ="Gold",price = 100},
+               new Topping(){name ="Jalapenos",price = 60},
+               new Topping(){name = "Cheese",price = 1}
             });
 
             builder.Entity<Size>().HasData(new List<Size>
             {
-                new Size("Small", 12),
-                new Size("Medium",16),
-                new Size("Large", 22),
-                new Size("X-Large", 28)
+                new Size{name ="Small",price = 12},
+                new Size{name ="Medium",price =16},
+                new Size{name ="Large",price = 22},
+                new Size{name ="X-Large",price = 28}
             });
 
             builder.Entity<Crust>().HasData(new List<Crust>
             {
-                new Crust("Thin", 2),
-                new Crust("Thick", 3),
-                new Crust("Stuffed",5)
+                new Crust{name ="Thin",price = 2},
+                new Crust{name ="Thick",price = 3},
+                new Crust{name ="Stuffed",price =5}
             });
         }
 

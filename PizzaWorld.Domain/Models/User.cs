@@ -22,14 +22,14 @@ namespace PizzaWorld.Domain.Models
             foreach (var p in Orders.Last().Pizzas)
             {
                 pizzaCount++;
-                sb.AppendLine("\n"+ pizzaCount +". "+ p.GetType().Name +": "+p.Size+ "," + p.Crust +" Crust with" );
+                sb.AppendLine("\n"+ pizzaCount +". "+ p.GetType().Name +": "+p.Size+ ", " + p.Crust +" Crust with" );
                 foreach(Topping toppings in p.Toppings)
                 {
                     sb.Append("   "+toppings.name+"\n");
-                }
+                }              
             }
 
-            return $"you have selected this store: {ChosenStore} and ordered these pizzas: {sb.ToString()}"; // string interpolation
+            return $"You have selected this store: {ChosenStore} and ordered these pizzas:\n {sb.ToString()}"; // string interpolation
         }
     }  
 }

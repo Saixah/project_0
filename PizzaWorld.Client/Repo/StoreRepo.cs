@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using PizzaWorld.Domain.Abstracts;
@@ -42,5 +43,10 @@ namespace PizzaWorld.Client.Repo
             return ReadOneStore(StoreName).Pizzas;
         }
 
+        public void SaveOrder(User user)
+        {
+            _db.Add(user.Orders.Last());
+            _db.SaveChanges();
+        }
     }
 }
