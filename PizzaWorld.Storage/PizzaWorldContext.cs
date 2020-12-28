@@ -15,7 +15,7 @@ namespace PizzaWorld.Storage
 
         protected override void OnConfiguring(DbContextOptionsBuilder builder)
         {
-            builder.UseSqlServer("Server=isaiahpizzaworld.database.windows.net;Initial Catalog=isaiahpizzaworlddb;User ID=sqladmin;Password=;");
+            builder.UseSqlServer("Server=isaiahpizzaworld.database.windows.net;Initial Catalog=isaiahpizzaworlddb;User ID=sqladmin;Password=Password1234;");
         }
 
         protected override void OnModelCreating(ModelBuilder builder)
