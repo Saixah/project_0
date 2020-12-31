@@ -11,8 +11,6 @@ namespace PizzaWorld.Client
 {
     class Program
     {
-        private static readonly ClientSingleton Client =
-         ClientSingleton.Instance;
         public static AllRepo AllRepo = new AllRepo();
         static void Main(string[] args)
         {   
@@ -82,7 +80,6 @@ namespace PizzaWorld.Client
                     break;
             }
         }
-
         static void StoreMenu(Store Store)
         {
             Console.WriteLine("\nWould you like to see Revenue or Past Orders?");
@@ -234,9 +231,10 @@ namespace PizzaWorld.Client
                 decimal total = 0;
                 ordercount++;
                 total += order.Price; 
-                Console.WriteLine("Order #" + ordercount +" Location = "+order.Store.Name.ToString()+ " - Price = $" + total + 
+                Console.WriteLine("Order #" + ordercount +" Location = "
+                +order.Store.Name.ToString()+ " - Price = $" + total + 
                 " - Date = " + order.OrderTime.Date.ToString("MM-dd-yyyy") + 
-                " at " + order.OrderTime.ToString("hh:mm:ss"));
+                " at " + order.OrderTime.ToString("hh:mm tt"));
             }
         }
         static void GetReturningUserOption(User User)
