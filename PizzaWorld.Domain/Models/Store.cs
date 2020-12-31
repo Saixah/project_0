@@ -5,6 +5,7 @@ namespace PizzaWorld.Domain.Models
 {
     public class Store : AEntity
     {
+        public List<User> Users {get;set;}
         public List<Order> Orders {get; set;}
         public List<APizzaModel> Pizzas {get;set;}
         public string Name {get; set;}

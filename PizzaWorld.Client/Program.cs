@@ -5,6 +5,7 @@ using PizzaWorld.Domain.Models;
 using System.Linq;
 using PizzaWorld.Domain.Abstracts;
 using PizzaWorld.Repo.Repos;
+using System.Text;
 
 namespace PizzaWorld.Client
 {
@@ -12,47 +13,300 @@ namespace PizzaWorld.Client
     {
         private static readonly ClientSingleton Client =
          ClientSingleton.Instance;
-        public static StoreRepo StoreRepo = new StoreRepo();
-        public static ToppingRepo ToppingRepo = new ToppingRepo();
-        public static SizeRepo SizeRepo = new SizeRepo();
-        public static CrustRepo CrustRepo = new CrustRepo();
+        public static AllRepo AllRepo = new AllRepo();
 
-        //todo Repos should be WAAAAAY more abstracted, override and overload
-        //todo downsize check methods after abstracting repo
-        //todo DB needs pizza items in order to make list dynamic - GetSelection()
-        //todo Write tests
-        //todo Read and Write to Db with Orders
-        //------------------------------------------------------------------------
         static void Main(string[] args)
         {   
-           UserView();
+           SelectUserType();
         }
-        static void UserView()
+        static void UserView(User User)
         {
-            //Get User
-            var User = new User();
             UserStart(User);
-            //Get Order
-            GetSelection(User);
-            //Print Pizza Order
-            Console.WriteLine(User);
-            //Print Total
+            GetPizzas(User);
+            Console.WriteLine(PrintLastOrders(User));
             Console.WriteLine("Your total is : $" + GetPrice(User));
+            AllRepo.SaveOrder(User.Orders.Last());
+        }
 
-            StoreRepo.SaveOrder(User);
+        static void SelectUserType()
+        {
+            Console.WriteLine("\nCustomer or Store");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>{"Customer","Store"};
+            UserChoices.ForEach(Console.WriteLine);
+            
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
+            {
+                case 1:
+                    CheckIfReturning();
+                    break;
+                case 2: 
+                    StoreMenu(GetStore());
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
         }
 
         static User UserStart(User user)
         {
-            //Display Store Choices
-            Console.WriteLine("\nChoose a Store");
-            Console.WriteLine("---------------");
-            StoreRepo.DisplayStores();
-            CheckifStoreExists(user);
-            //Create Order
+            user.ChosenStore = GetStore();
             user.ChosenStore.CreateOrder();
             user.Orders.Add(user.ChosenStore.Orders.Last());
+            return user;
+        }
+        static void CheckIfReturning()
+        {
+            Console.WriteLine("\nAre you a New or Returning User");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>{"New","Returning"};
+            UserChoices.ForEach(Console.WriteLine);
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
+            {
+                case 1:
+                    UserView(CreateNewUser());
+                    break;
+                case 2: 
+                    GetReturningUserOption(GetUser());
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
+        }
 
+        static void StoreMenu(Store Store)
+        {
+            Console.WriteLine("\nWould you like to see Revenue or Past Orders?");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>{"Revenue","Orders"};
+            UserChoices.ForEach(Console.WriteLine);
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
+            {
+                case 1:
+                    DisplayRevenueMenu(Store);
+                    StoreMenu(Store);
+                    break;
+                case 2: 
+                    DisplayPastOrders(Store);
+                    StoreMenu(Store);
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
+        }
+
+        static void DisplayRevenueMenu(Store Store)
+        {
+            Console.WriteLine("\nWould you like to see Weekly, Monthly, Yearly, or Total?");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>{"Weekly","Monthly","Yearly","Total"};
+            UserChoices.ForEach(Console.WriteLine);
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
+            {
+                case 1:
+                    DisplayWeeklyRevenue(Store);
+                    break;
+                case 2: 
+                    DisplayMonthlyRevenue(Store);
+                    break;
+                case 3: 
+                    DisplayYearlyRevenue(Store);
+                    break;
+                case 4: 
+                    DisplayTotalRevenue(Store);
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
+        }
+
+        //Stolen
+        public static DateTime StartOfWeek(DateTime dt, DayOfWeek startOfWeek)
+        {
+            int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
+            return dt.AddDays(-1 * diff).Date;
+        }
+
+        static void DisplayWeeklyRevenue(Store Store)
+        {
+            var Orders = AllRepo.GetOrderByStore(Store);
+            decimal Revenue = 0;
+            DateTime Sunday = StartOfWeek(DateTime.Now, DayOfWeek.Sunday);
+            foreach (var order in Orders)
+            {
+                int result = DateTime.Compare(order.OrderTime,Sunday);
+                if (result > 0)
+                {
+                    Revenue += order.Price; 
+                }
+            }
+            Console.WriteLine("This week's Revenue = $" + Revenue);
+        }
+        static void DisplayYearlyRevenue(Store Store)
+        {
+            var Orders = AllRepo.GetOrderByStore(Store);
+            decimal Revenue = 0;
+            int year = DateTime.Now.Year;
+            DateTime StartOfYear = new DateTime(year,1,1);
+            foreach (var order in Orders)
+            {
+                int result = DateTime.Compare(order.OrderTime,StartOfYear);
+                if (result > 0)
+                {
+                    Revenue += order.Price; 
+                }
+            }
+            Console.WriteLine("This Year's Revenue = $" + Revenue);
+        }
+        static void DisplayTotalRevenue(Store Store)
+        {
+            var Orders = AllRepo.GetOrderByStore(Store);
+            decimal Revenue = 0;
+            foreach (var order in Orders)
+            {
+                Revenue += order.Price; 
+            }
+            Console.WriteLine("Total Revenue = $" + Revenue);
+        }
+        static void DisplayMonthlyRevenue(Store Store)
+        {
+            var Orders = AllRepo.GetOrderByStore(Store);
+            decimal Revenue = 0;
+            var date = DateTime.Now;
+            DateTime FirstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+            foreach (var order in Orders)
+            {
+                int result = DateTime.Compare(order.OrderTime,FirstDayOfMonth);
+                if (result > 0)
+                {
+                    Revenue += order.Price; 
+                }
+            }
+            Console.WriteLine("This Month's Revenue = $" + Revenue);
+        }
+        static string PrintLastOrders(User user)
+        {    
+            var sb = new StringBuilder();
+            int pizzaCount = 0;
+            foreach (var p in user.Orders.Last().Pizzas)
+            {
+                pizzaCount++;
+                sb.AppendLine("\n"+ pizzaCount +". "+ p.GetType().Name +": "+p.Size+ ", " + p.Crust +" Crust with" );
+                foreach(Topping toppings in p.Toppings)
+                {
+                    sb.Append("   "+toppings.name+"\n");
+                }              
+            }
+            return $"You have selected this store: {user.ChosenStore} and ordered these pizzas:\n {sb.ToString()}";
+        }
+        static void PrintStoreOrders(Store Store)
+        {
+            var Orders = AllRepo.GetOrderByStore(Store);
+            int ordercount = 0;
+            foreach (var order in Orders)
+            {
+                decimal total = 0;
+                ordercount++;
+                total += order.Price; 
+                Console.WriteLine("Order #" + ordercount + " - Price = $" + total +
+                 " - Date = " + order.OrderTime.Date.ToString("MM-dd-yyyy") +
+                  " at " + order.OrderTime.ToString("hh:mm:ss"));
+            }
+        }
+        static void PrintUserOrders(User User)
+        {
+            var Orders = AllRepo.GetOrderByUser(User);
+            int ordercount = 0;
+            foreach (var order in Orders)
+            {
+                decimal total = 0;
+                ordercount++;
+                total += order.Price; 
+                Console.WriteLine("Order #" + ordercount + " - Price = $" + total + 
+                " - Date = " + order.OrderTime.Date.ToString("MM-dd-yyyy") + 
+                " at " + order.OrderTime.ToString("hh:mm:ss"));
+            }
+        }
+        static void GetReturningUserOption(User User)
+        {
+            Console.WriteLine("\nWould you like to create a new order or view old?");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>{"New Order","View Previous Orders"};
+            UserChoices.ForEach(Console.WriteLine);
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
+            {
+                case 1:
+                    UserView(User);
+                    break;
+                case 2: 
+                    PrintUserOrders(User);
+                    GetReturningUserOption(User);
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
+        }
+        static void DisplayUserOrders(User User)
+        {
+            AllRepo.DisplayOrderByUser(User);
+        }
+        static Store GetStore()
+        {
+            Console.WriteLine("\nChoose a Store");
+            Console.WriteLine("---------------");
+            AllRepo.DisplayStores();
+            var Choice = int.TryParse(Console.ReadLine(),out int Input);
+            if(Choice)
+               if (CheckifExists(AllRepo.ReadStores().ToList().Count, Input))
+                    return AllRepo.ReadOneStore(Input-1);
+                else{
+                    Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                    GetStore();
+                    return null;}
+            else{
+                Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                GetStore();
+                return null;}
+        }
+
+        static void DisplayPastOrders(Store StoreChoice)
+        {
+           // AllRepo.DisplayOrderByStore(StoreChoice);
+            PrintStoreOrders(StoreChoice);
+        }
+        static User GetUser()
+        {
+            Console.WriteLine("\nChoose a User");
+            Console.WriteLine("---------------");
+            AllRepo.DisplayUser();
+            var Choice = int.TryParse(Console.ReadLine(),out int Input);
+            if(Choice)
+               if (CheckifExists(AllRepo.ReadUser().ToList().Count, Input))
+                    return AllRepo.ReadOneUser(Input-1);
+                else{Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                    GetUser();
+                    return null;}
+            else{Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                GetUser();
+                return null;}
+        }
+        static User CreateNewUser()
+        {
+            Console.WriteLine("\nEnter Name");
+            Console.WriteLine("---------------");
+            var Name = Console.ReadLine();
+            User user = new User(Name);
+            AllRepo.SaveUser(user);
             return user;
         }
 
@@ -60,17 +314,35 @@ namespace PizzaWorld.Client
         {
             Console.WriteLine("\nChoose a Size");
             Console.WriteLine("---------------");
-            SizeRepo.DisplaySize();
-            int.TryParse(Console.ReadLine(),out int SizeInput);
-            return SizeRepo.ReadOneSize(SizeInput);
+            AllRepo.DisplaySize();
+            var Choice = int.TryParse(Console.ReadLine(),out int Input);
+            if(Choice)
+               if (CheckifExists(AllRepo.ReadSize().ToList().Count, Input))
+                    return AllRepo.ReadOneSize(Input-1);
+                else{
+                    Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                    GetSize();
+                    return null;}
+            else{Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                GetSize();
+                return null;}
         }
 
         static Crust GetCrust()
         {
             Console.WriteLine("\nChoose a Crust");
             Console.WriteLine("---------------");
-            CrustRepo.DisplayCrust();
-            return CheckifCrustExists();
+            AllRepo.DisplayCrust();
+            var Choice = int.TryParse(Console.ReadLine(),out int Input);
+            if(Choice)
+               if (CheckifExists(AllRepo.ReadCrust().ToList().Count, Input))
+                    return AllRepo.ReadOneCrust(Input-1);
+                else{Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                    GetCrust();
+                    return null;}
+            else{Console.Error.WriteLine("\nPlease Enter a Valid Choice");
+                GetCrust();
+                return null;}
         }
 
         static List<Topping> GetToppings()
@@ -82,11 +354,10 @@ namespace PizzaWorld.Client
                 Console.WriteLine("\nChoose a Topping, Minimum 2");
                 Console.WriteLine("Total Toppings: " + UserToppings.Count);
                 Console.WriteLine("---------------");
-                ToppingRepo.DisplayToppings(); 
-                
+                AllRepo.DisplayToppings(); 
                 CheckifToppingExists(UserToppings);
 
-                if(UserToppings.Count >= 2)
+                if(UserToppings.Count >= 2 && UserToppings.Count < 5)
                 {
                     Console.WriteLine("\nYou've hit the minimum, would you like to add more?");
                     Console.WriteLine("Y or N");
@@ -95,16 +366,16 @@ namespace PizzaWorld.Client
                         IsStillGettingToppings = false;
                     }
                 }
-                else if (UserToppings.Count == 50)
+                if (UserToppings.Count == 5)
                 {
-                    Console.WriteLine("You've hit the maximum");
+                    Console.WriteLine("You've hit the maximum amount of toppings");
                     IsStillGettingToppings = false;
                 }
             }
             return UserToppings;
         }
 
-        static void GetSelection(User User)
+        static void GetPizzas(User User)
         {
             var Pizzas = new List<string>{"CheesePizza","MeatPizza","CustomPizza"};
 
@@ -119,7 +390,7 @@ namespace PizzaWorld.Client
                 {
                     Console.WriteLine("\nSelect a pizza");
                     Console.WriteLine("---------------");
-                    SelectPizza(Pizzas,TopOrder);
+                    PizzaList(Pizzas,TopOrder);
                 }
                 else
                 {
@@ -129,15 +400,30 @@ namespace PizzaWorld.Client
 
                     if (UserChoice.Equals("Y"))
                     {
-                        SelectPizza(Pizzas,TopOrder);
+                        PizzaList(Pizzas,TopOrder);
                     }
                     else if (UserChoice.Equals("N")){StillSelecting = false;}
                     else{Console.Error.WriteLine("\nPlease Enter Y or N");}
                 }
             }
         }
+        static decimal GetPrice(User User)
+        {
+            decimal total=0;
+            foreach (APizzaModel pizza in User.Orders.Last().Pizzas)
+            {
+                total += pizza.Crust.price;
+                total += pizza.Size.price;
+                foreach(Topping topping in pizza.Toppings)
+                {
+                    total+=topping.price;
+                }
+            }
+            User.Orders.Last().Price = total;
+            return total;
+        }
 
-        static void SelectPizza(List<string> Pizzas, Order TopOrder)
+        static void PizzaList(List<string> Pizzas, Order TopOrder)
         {
             Pizzas.ForEach(Console.WriteLine);
             int.TryParse(Console.ReadLine(),out int input);
@@ -165,114 +451,43 @@ namespace PizzaWorld.Client
             var Pizza = TopOrder.Pizzas.Last();
             Pizza.Size = GetSize();
             Pizza.Crust = GetCrust();
-            Pizza.Toppings.Add(ToppingRepo.ReadOneTopping("Bacon"));
-            Pizza.Toppings.Add(ToppingRepo.ReadOneTopping("Pepperoni"));
+            Pizza.Toppings.Add(AllRepo.ReadOneTopping("Bacon"));
+            Pizza.Toppings.Add(AllRepo.ReadOneTopping("Pepperoni"));
         }
+
         static void SetCheesePizza(Order TopOrder)
         {
             var Pizza = TopOrder.Pizzas.Last();
             Pizza.Size = GetSize();
             Pizza.Crust = GetCrust();
-            Pizza.Toppings.Add(ToppingRepo.ReadOneTopping("Cheese"));
-        }
-        static decimal GetPrice(User User)
-        {
-            decimal total=0;
-            foreach (APizzaModel pizza in User.Orders.Last().Pizzas)
-            {
-                total += pizza.Crust.price;
-                total += pizza.Size.price;
-                foreach(Topping topping in pizza.Toppings)
-                {
-                    total+=topping.price;
-                }
-            }
-            return total;
-        }
-//---------------------------------------------------------------------Check
-
-        static Crust CheckifSizeExists()
-        {
-            bool isValid = int.TryParse(Console.ReadLine(),out int Input);
-            if(isValid)
-            {
-                if(Input <= CrustRepo.ReadCrust().ToList().Count && Input > 0)
-                    return CrustRepo.ReadOneCrust(Input);
-                else
-                {
-                    Console.Error.WriteLine("Please Enter a Valid Choice");
-                    GetCrust();
-                    return null;
-                }
-            }
-            else
-            {
-                Console.Error.WriteLine("Please Enter a Valid Choice");
-                GetCrust();
-                return null;
-            }
+            Pizza.Toppings.Add(AllRepo.ReadOneTopping("Cheese"));
         }
 
-        static Crust CheckifCrustExists()
+        static bool CheckifExists(int ListSize, int Input)
         {
-            bool isValid = int.TryParse(Console.ReadLine(),out int Input);
-            if(isValid)
-            {
-                if(Input <= CrustRepo.ReadCrust().ToList().Count && Input > 0)
-                    return CrustRepo.ReadOneCrust(Input);
-                else
-                {
-                    Console.Error.WriteLine("Please Enter a Valid Choice");
-                    GetCrust();
-                    return null;
-                }
-            }
-            else
-            {
-                Console.Error.WriteLine("Please Enter a Valid Choice");
-                GetCrust();
-                return null;
-            }
+            if(Input <= ListSize && Input > 0)
+                return true;
+            else{return false;}
         }
-        static void CheckifStoreExists(User user)
-        {
-            bool isValid = int.TryParse(Console.ReadLine(),out int Input);
-            if(isValid)
-            {
-                if(Input <= StoreRepo.ReadStores().ToList().Count && Input > 0)
-                    user.ChosenStore = StoreRepo.ReadOneStore(Input);
-                else
-                {
-                    Console.Error.WriteLine("Please Enter a Valid Choice");
-                    UserStart(user);
-                }
-            }
-            else
-            {
-                Console.Error.WriteLine("Please Enter a Valid Choice");
-                UserStart(user);
-            }
-        }
-        
+
         static void CheckifToppingExists(List<Topping> Toppings)
         {
-            var UserToppings = new List<Topping>();
             bool isValid = int.TryParse(Console.ReadLine(),out int Input);
             if(isValid)
             {
-                if(Input <= ToppingRepo.ReadToppings().ToList().Count && Input > 0)
-                    Toppings.Add(ToppingRepo.ReadOneTopping(Input));
+                if(Input <= AllRepo.ReadToppings().ToList().Count && Input > 0)
+                    Toppings.Add(AllRepo.ReadOneTopping(Input-1));
                 else
                 {
                     Console.Error.WriteLine("\nPlease Enter a Valid Choice");
-                    ToppingRepo.DisplayToppings();
+                    AllRepo.DisplayToppings();
                     CheckifToppingExists(Toppings);
                 }
             }
             else
             {
                 Console.Error.WriteLine("\nPlease Enter a Valid Choice");
-                ToppingRepo.DisplayToppings();
+                AllRepo.DisplayToppings();
                 CheckifToppingExists(Toppings);
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using PizzaWorld.Domain.Abstracts;
 using PizzaWorld.Domain.Factories;
@@ -7,17 +8,21 @@ namespace PizzaWorld.Domain.Models
    public class Order : AEntity
   {
     private GenericPizzaFactory _pizzaFactory = new GenericPizzaFactory();
-
     public List<APizzaModel> Pizzas { get; set; }
-
+    public Store Store {get;set;}
+    public User User {get;set;}
+    public decimal Price {get;set;}
+    public DateTime OrderTime {get;set;}
     public Order()
     {
       Pizzas = new List<APizzaModel>();
+      this.OrderTime = DateTime.Now;
     }
 
     public Order(List<APizzaModel> pizzaModels)
     {
       this.Pizzas = pizzaModels;
+      this.OrderTime = DateTime.Now;
     }
 
     public void MakeMeatPizza()
@@ -34,5 +39,6 @@ namespace PizzaWorld.Domain.Models
     {
       Pizzas.Add(new CustomPizza(Crust, Size, Toppings));
     }
+    
   }
 }

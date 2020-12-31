@@ -9,7 +9,7 @@ namespace PizzaWorld.Domain.Abstracts
         public Size Size {get; set;}
         public List<Topping> Toppings {get; set;}
 
-        protected APizzaModel()
+        public APizzaModel()
         {
             AddCrust();
             AddSize();

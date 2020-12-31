@@ -4,6 +4,8 @@ namespace PizzaWorld.Domain.Models
 {
     public class Topping : AEntity
     {
+        //Nav
+        public APizzaModel Pizza = new APizzaModel();
         public string name { get; set; }
         public decimal price { get; set; }
         public Topping(){}
