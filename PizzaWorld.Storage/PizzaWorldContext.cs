@@ -42,18 +42,6 @@ namespace PizzaWorld.Storage
 
         protected void SeedData(ModelBuilder builder)
         {
-            // List<APizzaModel> pizzas = new List<APizzaModel>()
-            // {
-            //   new MeatPizza(),
-            //   new CheesePizza(),
-            //   new CustomPizza()  
-            // };
-            // List<APizzaModel> pizzas2 = new List<APizzaModel>()
-            // {
-            //   new MeatPizza(),
-            //   new CustomPizza()  
-            // };
-            
             builder.Entity<Store>(b => 
             {
                 b.HasData(new List<Store>{

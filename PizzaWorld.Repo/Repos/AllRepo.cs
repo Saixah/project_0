@@ -153,7 +153,7 @@ namespace PizzaWorld.Repo.Repos
         }
          public IEnumerable<Order> GetOrderByUser(User User)
         {
-          return _db.Orders.Where(p => p.User == User);
+          return _db.Orders.Where(p => p.User == User).Include(p => p.Store);
         }
 
         public void DisplayOrderByUser(User User)

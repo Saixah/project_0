@@ -14,7 +14,6 @@ namespace PizzaWorld.Client
         private static readonly ClientSingleton Client =
          ClientSingleton.Instance;
         public static AllRepo AllRepo = new AllRepo();
-
         static void Main(string[] args)
         {   
            SelectUserType();
@@ -22,9 +21,15 @@ namespace PizzaWorld.Client
         static void UserView(User User)
         {
             UserStart(User);
-            GetPizzas(User);
+            OrderMenu(User);
+        }
+
+        static void Checkout(User User)
+        {
+            Console.WriteLine("Thank you for Choosing Location : " + User.ChosenStore);
             Console.WriteLine(PrintLastOrders(User));
             Console.WriteLine("Your total is : $" + GetPrice(User));
+            Console.WriteLine("---------------");
             AllRepo.SaveOrder(User.Orders.Last());
         }
 
@@ -127,8 +132,6 @@ namespace PizzaWorld.Client
                     break;
             }
         }
-
-        //Stolen
         public static DateTime StartOfWeek(DateTime dt, DayOfWeek startOfWeek)
         {
             int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
@@ -199,38 +202,39 @@ namespace PizzaWorld.Client
             foreach (var p in user.Orders.Last().Pizzas)
             {
                 pizzaCount++;
-                sb.AppendLine("\n"+ pizzaCount +". "+ p.GetType().Name +": "+p.Size+ ", " + p.Crust +" Crust with" );
+                sb.AppendLine("\n"+ pizzaCount +". "+
+                 p.GetType().Name +": "+p.Size+ ", " + p.Crust +" Crust with" );
                 foreach(Topping toppings in p.Toppings)
                 {
                     sb.Append("   "+toppings.name+"\n");
-                }              
+                }  
+                sb.AppendLine("\n   Price : $ "+ GetPriceOfPizza(p));
+
             }
-            return $"You have selected this store: {user.ChosenStore} and ordered these pizzas:\n {sb.ToString()}";
+            return $"Your Pizzas:\n {sb.ToString()}";
         }
-        static void PrintStoreOrders(Store Store)
+
+        static decimal GetPriceOfPizza(APizzaModel Pizza)
         {
-            var Orders = AllRepo.GetOrderByStore(Store);
+            decimal priceOfPie = 0;
+            priceOfPie += Pizza.Crust.price;
+            priceOfPie += Pizza.Size.price;
+            foreach(Topping toppings in Pizza.Toppings)
+                {
+                    priceOfPie += toppings.price;
+                }  
+            return priceOfPie;
+        }
+
+        static void PrintOrders(IEnumerable<Order> Orders)
+        {
             int ordercount = 0;
             foreach (var order in Orders)
             {
                 decimal total = 0;
                 ordercount++;
                 total += order.Price; 
-                Console.WriteLine("Order #" + ordercount + " - Price = $" + total +
-                 " - Date = " + order.OrderTime.Date.ToString("MM-dd-yyyy") +
-                  " at " + order.OrderTime.ToString("hh:mm:ss"));
-            }
-        }
-        static void PrintUserOrders(User User)
-        {
-            var Orders = AllRepo.GetOrderByUser(User);
-            int ordercount = 0;
-            foreach (var order in Orders)
-            {
-                decimal total = 0;
-                ordercount++;
-                total += order.Price; 
-                Console.WriteLine("Order #" + ordercount + " - Price = $" + total + 
+                Console.WriteLine("Order #" + ordercount +" Location = "+order.Store.Name.ToString()+ " - Price = $" + total + 
                 " - Date = " + order.OrderTime.Date.ToString("MM-dd-yyyy") + 
                 " at " + order.OrderTime.ToString("hh:mm:ss"));
             }
@@ -248,7 +252,7 @@ namespace PizzaWorld.Client
                     UserView(User);
                     break;
                 case 2: 
-                    PrintUserOrders(User);
+                    PrintOrders(AllRepo.GetOrderByUser(User));
                     GetReturningUserOption(User);
                     break;
                 default:
@@ -280,9 +284,8 @@ namespace PizzaWorld.Client
         }
 
         static void DisplayPastOrders(Store StoreChoice)
-        {
-           // AllRepo.DisplayOrderByStore(StoreChoice);
-            PrintStoreOrders(StoreChoice);
+        {   
+            PrintOrders(AllRepo.GetOrderByStore(StoreChoice));
         }
         static User GetUser()
         {
@@ -359,7 +362,8 @@ namespace PizzaWorld.Client
 
                 if(UserToppings.Count >= 2 && UserToppings.Count < 5)
                 {
-                    Console.WriteLine("\nYou've hit the minimum, would you like to add more?");
+                    Console.WriteLine("\n"+
+                    "You've hit the minimum, would you like to add more?");
                     Console.WriteLine("Y or N");
                     if (Console.ReadLine().Equals("N"))
                     {
@@ -375,36 +379,82 @@ namespace PizzaWorld.Client
             return UserToppings;
         }
 
-        static void GetPizzas(User User)
+        static void OrderMenu(User User)
         {
-            var Pizzas = new List<string>{"CheesePizza","MeatPizza","CustomPizza"};
+            Console.WriteLine("\nWhat would you like to do?");
+            Console.WriteLine("---------------");
+            var UserChoices = new List<string>
+            {"Add a Pizza","Remove a Pizza","View Current Order","Proceed To Checkout"};
+            var CurrentOrder = User.Orders.Last();
+            CurrentOrder.Price = GetPrice(User);
 
-            //Handles Order
-            var StillSelecting= true;
-            var TopOrder = User.Orders.Last();
-
-            //When able to read pizzas from stores, this will need to change
-            while (StillSelecting)
+            UserChoices.ForEach(Console.WriteLine);
+            int.TryParse(Console.ReadLine(),out int input);
+            switch(input)
             {
-                if(TopOrder.Pizzas.Count < 2)
+                case 1:
+                    PizzaList(User.Orders.Last());
+                    OrderMenu(User);
+                    break;
+                case 2: 
+                    RemovePizzaFromOrder(User);
+                    break;
+                case 3: 
+                    Console.WriteLine(PrintLastOrders(User));
+                    OrderMenu(User);
+                    break;
+                case 4: 
+                    if (CurrentOrder.Pizzas.Count < 2 || CurrentOrder.Pizzas.Count > 50)
+                    {
+                        Console.WriteLine("\nYou Must Have at Least 2 Pizzas and at Most 50");
+                        Console.WriteLine("---------------");
+                        OrderMenu(User);
+                    }
+                    else if (CurrentOrder.Price > 250)
+                    {
+                        Console.WriteLine("\nYour Total Can Not Be More Than $250");
+                        Console.WriteLine("---------------");
+                        OrderMenu(User);
+                    }
+                    else
+                    {
+                        Checkout(User); 
+                    }
+                    break;
+                default:
+                    Console.Error.WriteLine("\nPlease enter a valid choice");
+                    break;
+            }
+        }
+
+        static void RemovePizzaFromOrder(User User)
+        {
+            var Pizzas = User.Orders.Last().Pizzas;
+            if (Pizzas.Count > 0)
+            {
+                Console.WriteLine("\nSelect A Pizza To Remove");
+                Console.WriteLine("---------------");
+                Console.WriteLine(PrintLastOrders(User));
+                int.TryParse(Console.ReadLine(),out int input);
+                if(input<= Pizzas.Count || input > 0)
                 {
-                    Console.WriteLine("\nSelect a pizza");
+                    Pizzas.RemoveAt(input-1);
+                    Console.WriteLine("\nPizza Removed");
                     Console.WriteLine("---------------");
-                    PizzaList(Pizzas,TopOrder);
+                    OrderMenu(User);
                 }
                 else
                 {
-                    Console.WriteLine("\nMinimum amout of pizzas selected, select another pizza? Y or N");
+                    Console.WriteLine("\nThat's not an option");
                     Console.WriteLine("---------------");
-                    string UserChoice = Console.ReadLine();
-
-                    if (UserChoice.Equals("Y"))
-                    {
-                        PizzaList(Pizzas,TopOrder);
-                    }
-                    else if (UserChoice.Equals("N")){StillSelecting = false;}
-                    else{Console.Error.WriteLine("\nPlease Enter Y or N");}
+                    OrderMenu(User);
                 }
+            }
+            else
+            {
+                Console.WriteLine("\nYou have no Pizzas");
+                Console.WriteLine("---------------");
+                OrderMenu(User);
             }
         }
         static decimal GetPrice(User User)
@@ -423,8 +473,11 @@ namespace PizzaWorld.Client
             return total;
         }
 
-        static void PizzaList(List<string> Pizzas, Order TopOrder)
+        static void PizzaList(Order TopOrder)
         {
+            Console.WriteLine("\nSelect A Pizza");
+            Console.WriteLine("---------------");
+            var Pizzas = new List<string>{"CheesePizza","MeatPizza","CustomPizza"};
             Pizzas.ForEach(Console.WriteLine);
             int.TryParse(Console.ReadLine(),out int input);
             switch(input)
