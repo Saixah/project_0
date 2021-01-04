@@ -32,7 +32,6 @@ namespace PizzaWorld.Repo.Repos
 
         public Crust ReadOneCrust(string Name)
         {
-            //_db.Entry(Name).State = EntityState.Unchanged;
             return _db.Crust.FirstOrDefault(s => s.name.Equals(Name));
         }
 
@@ -72,10 +71,7 @@ namespace PizzaWorld.Repo.Repos
         
         public Store ReadOneStore(string Name)
         {
-            //returns first of the name
             return _db.Stores.SingleOrDefault(s => s.Name == Name);
-            //if repeats returns null
-            // return _db.Stores.SingleOrDefault(s => s.Name == Name);
         }
 
         public Store ReadOneStore(int UserInt)
@@ -90,10 +86,6 @@ namespace PizzaWorld.Repo.Repos
 
         public void SaveOrder(Order Order)
         {
-            // foreach (var item in Order.Pizzas)
-            // {
-            //     _db.Entry(item).State = EntityState.Detached;
-            // }
             _db.Add(Order);
             _db.SaveChanges();
         }

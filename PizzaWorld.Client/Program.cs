@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using PizzaWorld.Domain.Singleton;
 using PizzaWorld.Domain.Models;
 using System.Linq;
 using PizzaWorld.Domain.Abstracts;
@@ -102,7 +101,10 @@ namespace PizzaWorld.Client
                     break;
             }
         }
-
+        static void is24hours(User User)
+        {
+     
+        }
         static void DisplayRevenueMenu(Store Store)
         {
             Console.WriteLine("\nWould you like to see Weekly, Monthly, Yearly, or Total?");
